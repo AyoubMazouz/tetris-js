@@ -8,20 +8,9 @@ const gameSize = {
   height: boardSize.y * blockSize,
 };
 
-const gameOff = {
-  x: blockSize / 2,
-  y: blockSize / 2
-}
-
-const sideOff = {
-  x: blockSize * boardSize.x + blockSize * .75,
-  y: blockSize / 4
-}
-
-
 const canvasSize = {
-  width: blockSize * 17,
-  height: blockSize * 21
+  width: blockSize * 10,
+  height: blockSize * 20
 }
 
 canvas.width = canvasSize.width;
@@ -29,73 +18,15 @@ canvas.height = canvasSize.height;
 
 const scoreSys = [40, 100, 300, 1200]
 
-const borders = [
-  // game border
-  {
-    x: blockSize / 4,
-    y: blockSize / 4,
-    width: gameSize.width + blockSize / 2,
-    height: gameSize.height + blockSize / 2,
-  },
-  // score border
-  {
-    x: sideOff.x,
-    y: sideOff.y,
-    width: blockSize * 6,
-    height: blockSize * 4,
-  },
-  // lines border
-  {
-    x: sideOff.x,
-    y: sideOff.y + blockSize * 4,
-    width: blockSize * 6,
-    height: blockSize * 4,
-  },
-  // next piece border
-  {
-    x: sideOff.x,
-    y: sideOff.y + blockSize * 8,
-    width: blockSize * 6,
-    height: blockSize * 7,
-  },
-  // hight score border
-  {
-    x: sideOff.x,
-    y: sideOff.y + blockSize * 15,
-    width: blockSize * 6,
-    height: blockSize * 5.5,
-  }
-]
-
-const labels = {
-  score: {
-    x: sideOff.x + blockSize / 2,
-    y: sideOff.y + blockSize * 1.75
-  },
-  lines: {
-    x: sideOff.x + blockSize / 2,
-    y: sideOff.y + blockSize * 5.75
-  },
-  nextPiece: {
-    x: sideOff.x + blockSize / 2,
-    y: sideOff.y + blockSize * 9.75
-  },
-  hightScore: {
-    x: sideOff.x + blockSize / 2,
-    y: sideOff.y + blockSize * 16.75
-  }
-}
-
 const colors = [
-  null,
+  '#000',
   '#F03E3E',
   '#F39B50',
   '#FEEE5E',
   '#A4CF09',
   '#4883D2',
   '#7349A2',
-  '#0E9990',
-  '#353535'
+  '#0E9990'
 ];
 
 const matrixes = [
@@ -137,18 +68,41 @@ const matrixes = [
 ];
 
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
-
 const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
 
-const numToString = (num) => {
-  num = num.toString()
-  while (num.length < 6) {
-    num = '0' + num
-  } return num
+let gameLoop;
+const stopGameLoop = loop => clearInterval(loop)
+const startGameLoop = (loop, fps) => {
+  gameLoop = setInterval(loop, fps)
+}
+
+let player = {
+  score: 0,
+  lines: 0,
+  hightScore: 0,
+  speed: 600,
+  pos: {
+    x: ((boardSize.x / 2) | 0) - 2,
+    y: 0,
+  },
+  matrix: null,
+  nextMatrix: null,
+  score: 0,
+
+  getPlayerOffset() {
+    return {
+      x: this.pos.x * blockSize,
+      y: this.pos.y * blockSize
+    }
+  }
+};
+
+const updateSpeedLabel = () => {
+
 }
 
 const clear = () => {
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = colors[0];
   ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 }
 
@@ -204,16 +158,9 @@ const drawBlock = (x, y, colorId) => {
 }
 
 const drawBorder = (x, y, width, height, thickness) => {
-  ctx.strokeStyle = colors[colors.length - 1];
+  ctx.strokeStyle = colors[0];
   ctx.lineWidth = thickness
   ctx.strokeRect(x, y, width, height);
-}
-
-const drawText = (text, x, y) => {
-  ctx.font = `${blockSize}px Pixel`;
-  ctx.fillStyle = '#eee';
-  ctx.fillText(text, x, y);
-
 }
 
 const drawMatrix = (matrix, offset = { x: 0, y: 0 }) => {
@@ -230,28 +177,7 @@ const drawMatrix = (matrix, offset = { x: 0, y: 0 }) => {
   });
 }
 
-const drawElements = (player) => {
-  borders.forEach((border) => {
-    drawBorder(
-      border.x,
-      border.y,
-      border.width,
-      border.height,
-      blockSize / 2
-    )
-  })
-
-  drawText(`Score:`,
-    labels.score.x, labels.score.y)
-  drawText(numToString(score),
-    labels.score.x, labels.score.y + blockSize)
-  drawText(`Lines:`,
-    labels.lines.x, labels.lines.y)
-  drawText(numToString(lines),
-    labels.lines.x, labels.lines.y + blockSize)
-  drawText(`Next:`,
-    labels.nextPiece.x, labels.nextPiece.y)
-
+const drawPreview = () => {
   let offset;
   switch (player.nextMatrix.length) {
     case 2:
@@ -268,19 +194,10 @@ const drawElements = (player) => {
       x: sideOff.x + blockSize * offset,
       y: sideOff.y + blockSize * 10.75
     })
-
-  drawText(`Hight`,
-    labels.hightScore.x, labels.hightScore.y)
-  drawText(`Score:`,
-    labels.hightScore.x, labels.hightScore.y + blockSize)
-  drawText(numToString(hightScore),
-    labels.hightScore.x, labels.hightScore.y + blockSize * 2)
-
-
 }
 
 const updateScore = numberOfLines => {
-  score += scoreSys[numberOfLines - 1]
+  player.score += scoreSys[numberOfLines - 1]
 }
 
 const createBoard = () => {
@@ -317,21 +234,6 @@ const merge = (player, board) => {
   player.pos.y = 0;
 }
 
-const reset = () => {
-  player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
-  player.pos.y = 0;
-  setNextMatrix();
-  if (collide(player, board)) {
-    board.forEach((row) => {
-      row.fill(0);
-    });
-    if (score > hightScore) hightScore = score;
-    score = 0;
-    lines = 0;
-    setNextMatrix();
-  }
-}
-
 const clearLine = () => {
   let line = 0;
   let count = 0;
@@ -347,13 +249,13 @@ const clearLine = () => {
         board.unshift(newRow);
         count = 0;
         line++;
-        lines++;
+        player.lines++;
         y++;
       }
     }
   }
   if (line) {
-    updateScore(line)
+    updateScore(line);
     line = 0;
   }
 }
@@ -366,7 +268,6 @@ const drop = () => {
     reset();
     clearLine();
   }
-  dropCounter = 0;
 }
 
 const move = (dir) => {
@@ -386,60 +287,51 @@ const rotate = (matrix) => {
     if (offset > player.matrix.length + 1) {
       rotatedMatrix = rotate2dArray([...matrix], -1);
       player.pos.x = posX;
-      console.log("matrix doesn't fit");
     }
   }
   player.matrix = rotatedMatrix;
 }
 
-function setNextMatrix() {
-  getNextMatrix();
-}
-
-let score = 0;
-let lines = 0;
-let hightScore = 0;
-let player = {
-  pos: {
-    x: ((boardSize.x / 2) | 0) - 2,
-    y: 0,
-  },
-  matrix: null,
-  nextMatrix: null,
-  score: 0,
-
-  getPlayerOffset() {
-    return {
-      x: this.pos.x * blockSize + gameOff.x,
-      y: this.pos.y * blockSize + gameOff.y
-    }
-  }
-};
 let board = createBoard();
-setNextMatrix();
+getNextMatrix();
 
 const drawGame = () => {
   clear();
-  drawElements(player)
-  drawMatrix(board, gameOff);
+  drawMatrix(board);
   drawMatrix(player.matrix, player.getPlayerOffset());
 }
 
-const dropSpeed = 1000;
+const reset = () => {
+  player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
+  player.pos.y = 0;
+  getNextMatrix();
+  if (collide(player, board)) {
+    board.forEach((row) => {
+      row.fill(0);
+    });
+    if (player.score > player.hightScore) {
+      player.hightScore = player.score;
+    }
+    player.score = 0;
+    player.lines = 0;
+    getNextMatrix();
+  }
+}
+
+let deltaTime = 0;
 let dropCounter = 0;
 let lastTime = 0;
-
 const update = (time = 0) => {
-  const deltaTime = time - lastTime;
+  debugger
+  deltaTime = time - lastTime;
   lastTime = time;
-
   dropCounter += deltaTime;
-  if (dropCounter > dropSpeed) {
-    drop();
+  if (dropCounter > player.speed) {
+    drop()
+    dropCounter = 0
   }
-
   drawGame();
-  requestAnimationFrame(update);
+  requestAnimationFrame(update)
 }
 
 document.addEventListener("keydown", (event) => {
@@ -449,10 +341,11 @@ document.addEventListener("keydown", (event) => {
     move(1);
   } else if (event.keyCode === 40) {
     drop();
+    dropCounter = 0
   } else if (event.keyCode === 38) {
     rotate(player.matrix);
   }
 });
 
-update();
+update()
 
