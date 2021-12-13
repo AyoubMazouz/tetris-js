@@ -1,6 +1,10 @@
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 
+const scoreLabel = document.getElementById('score')
+const linesLabel = document.getElementById('lines')
+const hightScoreLabel = document.getElementById('hight-score')
+
 const blockSize = 30;
 const boardSize = { x: 10, y: 20 };
 const gameSize = {
@@ -97,9 +101,9 @@ let player = {
   }
 };
 
-const updateSpeedLabel = () => {
-
-}
+const updateScoreLabel = () => scoreLabel.innerHTML = player.score
+const updateLinesLabel = () => linesLabel.innerHTML = player.lines
+const updateHightScoreLabel = () => hightScoreLabel.innerHTML = player.hightScore
 
 const clear = () => {
   ctx.fillStyle = colors[0];
@@ -198,6 +202,7 @@ const drawPreview = () => {
 
 const updateScore = numberOfLines => {
   player.score += scoreSys[numberOfLines - 1]
+  player.lines += numberOfLines
 }
 
 const createBoard = () => {
@@ -249,14 +254,36 @@ const clearLine = () => {
         board.unshift(newRow);
         count = 0;
         line++;
-        player.lines++;
         y++;
       }
     }
   }
   if (line) {
     updateScore(line);
+    updateScoreLabel()
+    updateLinesLabel()
     line = 0;
+  }
+
+}
+
+const reset = () => {
+  player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
+  player.pos.y = 0;
+  getNextMatrix();
+  if (collide(player, board)) {
+    board.forEach((row) => {
+      row.fill(0);
+    });
+    if (player.score > player.hightScore) {
+      player.hightScore = player.score;
+    }
+    player.score = 0;
+    player.lines = 0;
+    getNextMatrix();
+    updateScoreLabel()
+    updateLinesLabel()
+    updateHightScoreLabel()
   }
 }
 
@@ -301,22 +328,6 @@ const drawGame = () => {
   drawMatrix(player.matrix, player.getPlayerOffset());
 }
 
-const reset = () => {
-  player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
-  player.pos.y = 0;
-  getNextMatrix();
-  if (collide(player, board)) {
-    board.forEach((row) => {
-      row.fill(0);
-    });
-    if (player.score > player.hightScore) {
-      player.hightScore = player.score;
-    }
-    player.score = 0;
-    player.lines = 0;
-    getNextMatrix();
-  }
-}
 
 let deltaTime = 0;
 let dropCounter = 0;
@@ -348,4 +359,5 @@ document.addEventListener("keydown", (event) => {
 });
 
 update()
+updateHightScoreLabel()
 
