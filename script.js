@@ -1,9 +1,11 @@
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
+const previewCanvas = document.getElementById('preview');
+const previewCtx = previewCanvas.getContext('2d');
 
-const scoreLabel = document.getElementById('score')
-const linesLabel = document.getElementById('lines')
-const hightScoreLabel = document.getElementById('hight-score')
+const scoreLabel = document.getElementById('score');
+const linesLabel = document.getElementById('lines');
+const hightScoreLabel = document.getElementById('hight-score');
 
 const blockSize = 30;
 const boardSize = { x: 10, y: 20 };
@@ -15,12 +17,14 @@ const gameSize = {
 const canvasSize = {
   width: blockSize * 10,
   height: blockSize * 20
-}
+};
 
 canvas.width = canvasSize.width;
 canvas.height = canvasSize.height;
+previewCanvas.width = blockSize * 5;
+previewCanvas.height = blockSize * 5;
 
-const scoreSys = [40, 100, 300, 1200]
+const scoreSys = [40, 100, 300, 1200];
 
 const colors = [
   '#000',
@@ -68,16 +72,16 @@ const matrixes = [
     [0, 7, 7],
     [7, 7, 0],
     [0, 0, 0],
-  ],
+  ]
 ];
 
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
 
 let gameLoop;
-const stopGameLoop = loop => clearInterval(loop)
+const stopGameLoop = loop => clearInterval(loop);
 const startGameLoop = (loop, fps) => {
-  gameLoop = setInterval(loop, fps)
+  gameLoop = setInterval(loop, fps);
 }
 
 let player = {
@@ -101,13 +105,18 @@ let player = {
   }
 };
 
-const updateScoreLabel = () => scoreLabel.innerHTML = player.score
-const updateLinesLabel = () => linesLabel.innerHTML = player.lines
-const updateHightScoreLabel = () => hightScoreLabel.innerHTML = player.hightScore
+const updateScoreLabel = () => scoreLabel.innerHTML = player.score;
+const updateLinesLabel = () => linesLabel.innerHTML = player.lines;
+const updateHightScoreLabel = () => hightScoreLabel.innerHTML = player.hightScore;
 
 const clear = () => {
   ctx.fillStyle = colors[0];
   ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
+}
+
+const clearPreview = () => {
+  previewCtx.fillStyle = colors[0];
+  previewCtx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 }
 
 const getNextMatrix = () => {
@@ -156,26 +165,26 @@ const rotate2dArray = (matrix, dir) => {
   return matrix;
 }
 
-const drawBlock = (x, y, colorId) => {
-  ctx.fillStyle = colors[colorId];
-  ctx.fillRect(x, y, blockSize, blockSize);
+const drawBlock = (context, x, y, colorId) => {
+  context.fillStyle = colors[colorId];
+  context.fillRect(x, y, blockSize, blockSize);
 }
 
-const drawBorder = (x, y, width, height, thickness) => {
-  ctx.strokeStyle = colors[0];
-  ctx.lineWidth = thickness
-  ctx.strokeRect(x, y, width, height);
+const drawBorder = (context, x, y, width, height, thickness) => {
+  context.strokeStyle = colors[0];
+  context.lineWidth = thickness;
+  context.strokeRect(x, y, width, height);
 }
 
-const drawMatrix = (matrix, offset = { x: 0, y: 0 }) => {
+const drawMatrix = (context, matrix, offset = { x: 0, y: 0 }) => {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        drawBlock(x * blockSize + offset.x,
+        drawBlock(context, x * blockSize + offset.x,
           y * blockSize + offset.y, value);
-        drawBorder(x * blockSize + offset.x,
+        drawBorder(context, x * blockSize + offset.x,
           y * blockSize + offset.y,
-          blockSize, blockSize, 2)
+          blockSize, blockSize, 2);
       }
     });
   });
@@ -185,24 +194,21 @@ const drawPreview = () => {
   let offset;
   switch (player.nextMatrix.length) {
     case 2:
-      offset = 2;
+      offset = 1.5;
       break;
     case 4:
-      offset = 1;
+      offset = .5;
       break;
     default:
-      offset = 1.5;
+      offset = 1;
   }
-  drawMatrix(player.nextMatrix,
-    {
-      x: sideOff.x + blockSize * offset,
-      y: sideOff.y + blockSize * 10.75
-    })
+  drawMatrix(previewCtx, player.nextMatrix,
+    { x: blockSize * offset, y: blockSize * 1 });
 }
 
 const updateScore = numberOfLines => {
-  player.score += scoreSys[numberOfLines - 1]
-  player.lines += numberOfLines
+  player.score += scoreSys[numberOfLines - 1];
+  player.lines += numberOfLines;
 }
 
 const createBoard = () => {
@@ -216,11 +222,9 @@ const createBoard = () => {
 const collide = (player, board) => {
   for (let y = 0; y < player.matrix.length; ++y) {
     for (let x = 0; x < player.matrix.length; ++x) {
-      if (
-        player.matrix[y][x] !== 0 &&
+      if (player.matrix[y][x] !== 0 &&
         (player.pos.y + y >= board.length ||
-          board[y + player.pos.y][x + player.pos.x] !== 0)
-      ) {
+          board[y + player.pos.y][x + player.pos.x] !== 0)) {
         return true;
       }
     }
@@ -260,8 +264,8 @@ const clearLine = () => {
   }
   if (line) {
     updateScore(line);
-    updateScoreLabel()
-    updateLinesLabel()
+    updateScoreLabel();
+    updateLinesLabel();
     line = 0;
   }
 
@@ -281,9 +285,9 @@ const reset = () => {
     player.score = 0;
     player.lines = 0;
     getNextMatrix();
-    updateScoreLabel()
-    updateLinesLabel()
-    updateHightScoreLabel()
+    updateScoreLabel();
+    updateLinesLabel();
+    updateHightScoreLabel();
   }
 }
 
@@ -324,8 +328,10 @@ getNextMatrix();
 
 const drawGame = () => {
   clear();
-  drawMatrix(board);
-  drawMatrix(player.matrix, player.getPlayerOffset());
+  clearPreview();
+  drawMatrix(ctx, board);
+  drawMatrix(ctx, player.matrix, player.getPlayerOffset());
+  drawPreview(ctx, player.matrix);
 }
 
 
@@ -333,16 +339,15 @@ let deltaTime = 0;
 let dropCounter = 0;
 let lastTime = 0;
 const update = (time = 0) => {
-  debugger
   deltaTime = time - lastTime;
   lastTime = time;
   dropCounter += deltaTime;
   if (dropCounter > player.speed) {
-    drop()
-    dropCounter = 0
+    drop();
+    dropCounter = 0;
   }
   drawGame();
-  requestAnimationFrame(update)
+  requestAnimationFrame(update);
 }
 
 document.addEventListener("keydown", (event) => {
@@ -352,12 +357,12 @@ document.addEventListener("keydown", (event) => {
     move(1);
   } else if (event.keyCode === 40) {
     drop();
-    dropCounter = 0
+    dropCounter = 0;
   } else if (event.keyCode === 38) {
     rotate(player.matrix);
   }
 });
 
-update()
-updateHightScoreLabel()
+update();
+updateHightScoreLabel();
 
