@@ -4,6 +4,7 @@ const previewCanvas = document.getElementById('preview');
 const previewCtx = previewCanvas.getContext('2d');
 
 const scoreLabel = document.getElementById('score');
+const levelLabel = document.getElementById('level');
 const linesLabel = document.getElementById('lines');
 const hightScoreLabel = document.getElementById('hight-score');
 const pauseBtn = document.getElementById('pause');
@@ -27,6 +28,69 @@ previewCanvas.width = blockSize * 5;
 previewCanvas.height = blockSize * 5;
 
 const scoreSys = [40, 100, 300, 1200];
+const speedPerLevel = {
+  0: 48,
+  1: 43,
+  2: 38,
+  3: 33,
+  4: 28,
+  5: 23,
+  6: 18,
+  7: 13,
+  8: 8,
+  9: 6,
+  10: 5,
+  11: 5,
+  12: 5,
+  13: 4,
+  14: 4,
+  15: 4,
+  16: 3,
+  17: 3,
+  18: 3,
+  19: 2,
+  20: 2,
+  21: 2,
+  22: 2,
+  23: 2,
+  24: 2,
+  25: 2,
+  26: 2,
+  27: 2,
+  28: 2,
+  29: 1,
+}
+const linesPerLevel = {
+  1: 1,
+  2: 2,
+  3: 3,
+  5: 4,
+  10: 5,
+  15: 6,
+  20: 7,
+  25: 8,
+  30: 9,
+  35: 10,
+  40: 11,
+  45: 12,
+  50: 13,
+  60: 14,
+  70: 15,
+  80: 16,
+  90: 17,
+  100: 18,
+  110: 19,
+  120: 20,
+  130: 21,
+  140: 22,
+  150: 23,
+  160: 24,
+  170: 25,
+  180: 26,
+  190: 27,
+  200: 28,
+  290: 29,
+}
 
 const colors = [
   ['#000'],
@@ -79,19 +143,19 @@ const matrixes = [
 
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
-
 let board;
+let deltaTime;
 let player = {
   score: 0,
   lines: 0,
+  level: 0,
   hightScore: localStorage.getItem('hightScore') ? localStorage.getItem('hightScore') : 0,
-  speed: 600,
+  speed: speedPerLevel[0] * 16.6,
   isGameOver: false,
   isPaused: false,
   pos: { x: ((boardSize.x / 2) | 0) - 2, y: 0 },
   matrix: null,
   nextMatrix: null,
-  score: 0,
 
   getPlayerOffset() {
     return { x: this.pos.x * blockSize, y: this.pos.y * blockSize }
@@ -99,6 +163,7 @@ let player = {
 };
 
 const updateScoreLabel = () => scoreLabel.innerHTML = player.score;
+const updateLevelLabel = () => levelLabel.innerHTML = player.level;
 const updateLinesLabel = () => linesLabel.innerHTML = player.lines;
 const updateHightScoreLabel = () => hightScoreLabel.innerHTML = player.hightScore;
 
@@ -272,7 +337,13 @@ const clearLine = () => {
     updateScore(line);
     updateScoreLabel();
     updateLinesLabel();
+    updateLevelLabel();
     line = 0;
+    if (linesPerLevel[player.lines]) {
+      player.level = linesPerLevel[player.lines];
+    } if (speedPerLevel[player.level]) {
+      player.speed = speedPerLevel[player.level] * deltaTime;
+    }
   }
 
 }
@@ -374,7 +445,6 @@ const drawGame = () => {
 }
 
 
-let deltaTime = 0;
 let dropCounter = 0;
 let lastTime = 0;
 const update = (time = 0) => {
