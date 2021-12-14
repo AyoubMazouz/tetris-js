@@ -80,28 +80,20 @@ const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
 
 let gameLoop;
 const stopGameLoop = loop => clearInterval(loop);
-const startGameLoop = (loop, fps) => {
-  gameLoop = setInterval(loop, fps);
-}
+const startGameLoop = (loop, fps) => gameLoop = setInterval(loop, fps);
 
 let player = {
   score: 0,
   lines: 0,
-  hightScore: 0,
+  hightScore: localStorage.getItem('hightScore') ? localStorage.getItem('hightScore') : 0,
   speed: 600,
-  pos: {
-    x: ((boardSize.x / 2) | 0) - 2,
-    y: 0,
-  },
+  pos: { x: ((boardSize.x / 2) | 0) - 2, y: 0 },
   matrix: null,
   nextMatrix: null,
   score: 0,
 
   getPlayerOffset() {
-    return {
-      x: this.pos.x * blockSize,
-      y: this.pos.y * blockSize
-    }
+    return { x: this.pos.x * blockSize, y: this.pos.y * blockSize }
   }
 };
 
@@ -211,6 +203,14 @@ const updateScore = numberOfLines => {
   player.lines += numberOfLines;
 }
 
+const updateHightScore = () => {
+  if (player.score > player.hightScore) {
+    player.hightScore = player.score;
+  }
+  localStorage.setItem('hightScore', `${player.hightScore}`);
+}
+
+
 const createBoard = () => {
   let board = [];
   for (let i = 0; i < boardSize.y; i++) {
@@ -279,9 +279,7 @@ const reset = () => {
     board.forEach((row) => {
       row.fill(0);
     });
-    if (player.score > player.hightScore) {
-      player.hightScore = player.score;
-    }
+    updateHightScore()
     player.score = 0;
     player.lines = 0;
     getNextMatrix();
@@ -363,6 +361,8 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-update();
-updateHightScoreLabel();
-
+const init = () => {
+  update();
+  updateHightScoreLabel();
+}
+init()
