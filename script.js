@@ -6,6 +6,8 @@ const previewCtx = previewCanvas.getContext('2d');
 const scoreLabel = document.getElementById('score');
 const linesLabel = document.getElementById('lines');
 const hightScoreLabel = document.getElementById('hight-score');
+const pauseBtn = document.getElementById('pause');
+const restartBtn = document.getElementById('reset');
 
 const blockSize = 30;
 const boardSize = { x: 10, y: 20 };
@@ -84,6 +86,8 @@ let player = {
   lines: 0,
   hightScore: localStorage.getItem('hightScore') ? localStorage.getItem('hightScore') : 0,
   speed: 600,
+  isGameOver: false,
+  isPaused: false,
   pos: { x: ((boardSize.x / 2) | 0) - 2, y: 0 },
   matrix: null,
   nextMatrix: null,
@@ -272,13 +276,14 @@ const reset = () => {
   player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
   player.pos.y = 0;
   getNextMatrix();
-  if (collide(player, board)) {
+  if (collide(player, board) || player.isGameOver) {
     board.forEach((row) => {
       row.fill(0);
     });
     updateHightScore()
     player.score = 0;
     player.lines = 0;
+    player.isGameOver = false;
     getNextMatrix();
     updateScoreLabel();
     updateLinesLabel();
@@ -371,12 +376,14 @@ const update = (time = 0) => {
   deltaTime = time - lastTime;
   lastTime = time;
   dropCounter += deltaTime;
-  if (dropCounter > player.speed) {
-    drop();
-    dropCounter = 0;
+  if (!player.isPaused) {
+    if (dropCounter > player.speed) {
+      drop();
+      dropCounter = 0;
+    }
+    drawGame();
+    requestAnimationFrame(update);
   }
-  drawGame();
-  requestAnimationFrame(update);
 }
 
 document.addEventListener("keydown", (event) => {
@@ -394,6 +401,15 @@ document.addEventListener("keydown", (event) => {
     dropCounter = 0;
   }
 });
+
+pauseBtn.addEventListener('click', () => {
+  player.isPaused = !player.isPaused;
+  update();
+})
+restartBtn.addEventListener('click', () => {
+  player.isGameOver = true;
+  reset();
+})
 
 const init = () => {
   board = createBoard()
