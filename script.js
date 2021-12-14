@@ -299,6 +299,20 @@ const drop = () => {
   }
 }
 
+const hardDrop = () => {
+  while (true) {
+    player.pos.y++;
+    if (collide(player, board) || player.pos.y > boardSize.y) {
+      player.pos.y--;
+      merge(player, board);
+      reset();
+      clearLine();
+      break;
+    }
+  }
+}
+
+
 const move = (dir) => {
   player.pos.x += dir;
   if (collide(player, board)) {
@@ -358,6 +372,9 @@ document.addEventListener("keydown", (event) => {
     dropCounter = 0;
   } else if (event.keyCode === 38) {
     rotate(player.matrix);
+  } else if (event.keyCode === 32) {
+    hardDrop();
+    dropCounter = 0;
   }
 });
 
