@@ -78,10 +78,7 @@ const matrixes = [
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
 const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
 
-let gameLoop;
-const stopGameLoop = loop => clearInterval(loop);
-const startGameLoop = (loop, fps) => gameLoop = setInterval(loop, fps);
-
+let board;
 let player = {
   score: 0,
   lines: 0,
@@ -162,8 +159,8 @@ const drawBlock = (context, x, y, colorId) => {
   context.fillRect(x, y, blockSize, blockSize);
 }
 
-const drawBorder = (context, x, y, width, height, thickness) => {
-  context.strokeStyle = colors[0];
+const drawBorder = (context, x, y, width, height, colorId = 0, thickness = 2) => {
+  context.strokeStyle = colors[colorId];
   context.lineWidth = thickness;
   context.strokeRect(x, y, width, height);
 }
@@ -176,7 +173,7 @@ const drawMatrix = (context, matrix, offset = { x: 0, y: 0 }) => {
           y * blockSize + offset.y, value);
         drawBorder(context, x * blockSize + offset.x,
           y * blockSize + offset.y,
-          blockSize, blockSize, 2);
+          blockSize, blockSize);
       }
     });
   });
@@ -335,14 +332,34 @@ const rotate = (matrix) => {
   player.matrix = rotatedMatrix;
 }
 
-let board = createBoard();
-getNextMatrix();
+const previewSkeleton = () => {
+  let skeleton = { pos: { ...player.pos }, matrix: [...player.matrix] };
+  while (true) {
+    skeleton.pos.y++;
+    if (collide(skeleton, board) || skeleton.pos.y > boardSize.y) {
+      skeleton.pos.y--;
+      break;
+    }
+  }
+  if (skeleton.pos.y - player.pos.y > 3) {
+    skeleton.matrix.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          drawBorder(ctx, blockSize * (x + skeleton.pos.x), blockSize * (y + skeleton.pos.y), blockSize, blockSize, value);
+        }
+      })
+    })
+  }
+}
+
+
 
 const drawGame = () => {
   clear();
-  clearPreview();
   drawMatrix(ctx, board);
+  previewSkeleton();
   drawMatrix(ctx, player.matrix, player.getPlayerOffset());
+  clearPreview();
   drawPreview(ctx, player.matrix);
 }
 
@@ -379,7 +396,9 @@ document.addEventListener("keydown", (event) => {
 });
 
 const init = () => {
+  board = createBoard()
+  getNextMatrix();
   update();
   updateHightScoreLabel();
 }
-init()
+init();
