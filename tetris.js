@@ -29,14 +29,14 @@ previewCanvas.height = blockSize * 5;
 const scoreSys = [40, 100, 300, 1200];
 
 const colors = [
-  '#000',
-  '#F03E3E',
-  '#F39B50',
-  '#FEEE5E',
-  '#A4CF09',
-  '#4883D2',
-  '#7349A2',
-  '#0E9990'
+  ['#000'],
+  ['#ee9ca7', '#ee9ca7'],
+  ['#42275a', '#734b6d'],
+  ['#bdc3c7', '#2c3e50'],
+  ['#de6262', '#ffb88c'],
+  ['#06beb6', '#48b1bf'],
+  ['#eb3349', '#f45c43'],
+  ['#dd5e89', '#f7bb97']
 ];
 
 const matrixes = [
@@ -108,7 +108,7 @@ const clear = () => {
 }
 
 const clearPreview = () => {
-  previewCtx.fillStyle = colors[0];
+  previewCtx.fillStyle = colors[0][0];
   previewCtx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 }
 
@@ -158,13 +158,18 @@ const rotate2dArray = (matrix, dir) => {
   return matrix;
 }
 
-const drawBlock = (context, x, y, colorId) => {
-  context.fillStyle = colors[colorId];
+const drawGradientBlock = (context, x, y, colorId) => {
+  const [color1, color2] = colors[colorId];
+  let gradient = context.createLinearGradient(x, y,
+    x + blockSize, y + blockSize);
+  gradient.addColorStop(0, color1);
+  gradient.addColorStop(1, color2);
+  context.fillStyle = gradient;
   context.fillRect(x, y, blockSize, blockSize);
 }
 
 const drawBorder = (context, x, y, width, height, colorId = 0, thickness = 2) => {
-  context.strokeStyle = colors[colorId];
+  context.strokeStyle = colors[colorId][0];
   context.lineWidth = thickness;
   context.strokeRect(x, y, width, height);
 }
@@ -173,7 +178,7 @@ const drawMatrix = (context, matrix, offset = { x: 0, y: 0 }) => {
   matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (value !== 0) {
-        drawBlock(context, x * blockSize + offset.x,
+        drawGradientBlock(context, x * blockSize + offset.x,
           y * blockSize + offset.y, value);
         drawBorder(context, x * blockSize + offset.x,
           y * blockSize + offset.y,
