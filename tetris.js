@@ -1,15 +1,3 @@
-import {
-  blockSize,
-  boardSize,
-  gameSize,
-  canvasSize,
-  scoreSys,
-  speedPerLevel,
-  linesPerLevel,
-  colors,
-  matrixes
-} from '/tetris.config.js';
-
 const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 const previewCanvas = document.getElementById('preview');
@@ -18,6 +6,7 @@ const previewCtx = previewCanvas.getContext('2d');
 const scoreLabel = document.getElementById('score');
 const levelLabel = document.getElementById('level');
 const linesLabel = document.getElementById('lines');
+const trtLabel = document.getElementById('trt');
 const hightScoreLabel = document.getElementById('hight-score');
 const pauseBtn = document.getElementById('pause');
 const restartBtn = document.getElementById('reset');
@@ -28,15 +17,17 @@ previewCanvas.width = blockSize * 5;
 previewCanvas.height = blockSize * 5;
 
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
-const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
+const getRandomIndex = () => 1;
 let board;
 let deltaTime;
 let player = {
   score: 0,
   lines: 0,
   level: 0,
+  trs: 0,
+  trt: 0,
+  speed: speedPerLevel[0] * 16.666,
   hightScore: localStorage.getItem('hightScore') ? localStorage.getItem('hightScore') : 0,
-  speed: speedPerLevel[0] * 16.6,
   isGameOver: false,
   isPaused: false,
   pos: { x: ((boardSize.x / 2) | 0) - 2, y: 0 },
@@ -51,6 +42,7 @@ let player = {
 const updateScoreLabel = () => scoreLabel.innerHTML = player.score;
 const updateLevelLabel = () => levelLabel.innerHTML = player.level;
 const updateLinesLabel = () => linesLabel.innerHTML = player.lines;
+const updateTrtLabel = () => trtLabel.innerHTML = player.trt;
 const updateHightScoreLabel = () => hightScoreLabel.innerHTML = player.hightScore;
 
 const clear = () => {
@@ -155,9 +147,15 @@ const drawPreview = () => {
     { x: blockSize * offset, y: blockSize * 1 });
 }
 
-const updateScore = numberOfLines => {
-  if (player.score > 10e5) player.score += scoreSys[numberOfLines - 1];
+const updateStats = numberOfLines => {
+  if (player.score < 10e5) player.score += scoreSys[numberOfLines - 1];
   player.lines += numberOfLines;
+  player.trt = ((player.trs / player.lines) * 100) | 0;
+  if (linesPerLevel[player.lines]) {
+    player.level = linesPerLevel[player.lines];
+  } if (speedPerLevel[player.level]) {
+    player.speed = speedPerLevel[player.level] * deltaTime;
+  }
 }
 
 const updateHightScore = () => {
@@ -209,7 +207,6 @@ const clearLine = () => {
         count = 0;
         break;
       } else count++;
-
       if (count === boardSize.x) {
         const newRow = board.splice(y, 1)[0].fill(0);
         board.unshift(newRow);
@@ -219,17 +216,14 @@ const clearLine = () => {
       }
     }
   }
+  if (line == 4) player.trs += 4;
   if (line) {
-    updateScore(line);
+    updateStats(line);
     updateScoreLabel();
     updateLinesLabel();
+    updateTrtLabel();
     updateLevelLabel();
     line = 0;
-    if (linesPerLevel[player.lines]) {
-      player.level = linesPerLevel[player.lines];
-    } if (speedPerLevel[player.level]) {
-      player.speed = speedPerLevel[player.level] * deltaTime;
-    }
   }
 
 }
@@ -246,6 +240,8 @@ const reset = () => {
     player.score = 0;
     player.lines = 0;
     player.level = 0;
+    player.trt = 0;
+    player.trs = 0
     player.speed = speedPerLevel[0] * deltaTime;
     player.isGameOver = false;
     getNextMatrix();
@@ -333,7 +329,6 @@ const drawGame = () => {
   drawPreview(ctx, player.matrix);
 }
 
-
 let dropCounter = 0;
 let lastTime = 0;
 const update = (time = 0) => {
@@ -351,18 +346,20 @@ const update = (time = 0) => {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (event.keyCode === 37) {
-    move(-1);
-  } else if (event.keyCode === 39) {
-    move(1);
-  } else if (event.keyCode === 40) {
-    drop();
-    dropCounter = 0;
-  } else if (event.keyCode === 38) {
-    rotate(player.matrix);
-  } else if (event.keyCode === 32) {
-    hardDrop();
-    dropCounter = 0;
+  if (!player.isPaused) {
+    if (event.keyCode === 37) {
+      move(-1);
+    } else if (event.keyCode === 39) {
+      move(1);
+    } else if (event.keyCode === 40) {
+      drop();
+      dropCounter = 0;
+    } else if (event.keyCode === 38) {
+      rotate(player.matrix);
+    } else if (event.keyCode === 32) {
+      hardDrop();
+      dropCounter = 0;
+    }
   }
 });
 

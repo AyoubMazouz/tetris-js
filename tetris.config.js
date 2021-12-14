@@ -1,17 +1,13 @@
-export const blockSize = 30;
-export const boardSize = { x: 10, y: 20 };
-export const gameSize = {
-    width: boardSize.x * blockSize,
-    height: boardSize.y * blockSize,
-};
+const blockSize = 30;
+const boardSize = { x: 10, y: 20 };
 
-export const canvasSize = {
+const canvasSize = {
     width: blockSize * 10,
     height: blockSize * 20
 };
 
-export const scoreSys = [40, 100, 300, 1200];
-export const speedPerLevel = {
+const scoreSys = [40, 100, 300, 1200];
+const speedPerLevel = {
     0: 48,
     1: 43,
     2: 38,
@@ -28,7 +24,8 @@ export const speedPerLevel = {
     19: 2,
     29: 1,
 }
-export const linesPerLevel = {
+const linesPerLevel = {
+    0: 0,
     1: 1,
     2: 2,
     3: 3,
@@ -60,7 +57,7 @@ export const linesPerLevel = {
     290: 29,
 }
 
-export const colors = [
+const colors = [
     ['#000'],
     ['#ee9ca7', '#ee9ca7'],
     ['#42275a', '#734b6d'],
@@ -71,7 +68,7 @@ export const colors = [
     ['#dd5e89', '#f7bb97']
 ];
 
-export const matrixes = [
+const matrixes = [
     [
         [0, 1, 0],
         [1, 1, 1],
