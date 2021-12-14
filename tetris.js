@@ -270,7 +270,7 @@ const drawPreview = () => {
 }
 
 const updateScore = numberOfLines => {
-  player.score += scoreSys[numberOfLines - 1];
+  if (player.score > 10e5) player.score += scoreSys[numberOfLines - 1];
   player.lines += numberOfLines;
 }
 
@@ -359,10 +359,13 @@ const reset = () => {
     updateHightScore()
     player.score = 0;
     player.lines = 0;
+    player.level = 0;
+    player.speed = speedPerLevel[0] * deltaTime;
     player.isGameOver = false;
     getNextMatrix();
     updateScoreLabel();
     updateLinesLabel();
+    updateLevelLabel();
     updateHightScoreLabel();
   }
 }
