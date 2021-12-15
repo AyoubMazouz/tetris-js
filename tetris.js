@@ -85,8 +85,7 @@ const rotate2dArray = (matrix, n) => {
 
 const drawGradientBlock = (context, x, y, colorId) => {
   const [color1, color2] = colors[colorId];
-  let gradient = context.createLinearGradient(x, y,
-    x + blockSize, y + blockSize);
+  let gradient = context.createLinearGradient(x, y, x + blockSize, y + blockSize);
   gradient.addColorStop(0, color1);
   gradient.addColorStop(1, color2);
   context.fillStyle = gradient;
@@ -106,8 +105,7 @@ const drawMatrix = (context, matrix, offset = { x: 0, y: 0 }) => {
         drawGradientBlock(context, x * blockSize + offset.x,
           y * blockSize + offset.y, value);
         drawBorder(context, x * blockSize + offset.x,
-          y * blockSize + offset.y,
-          blockSize, blockSize);
+          y * blockSize + offset.y, blockSize, blockSize);
       }
     });
   });
@@ -130,20 +128,15 @@ const drawPreview = () => {
 }
 
 const updateStats = numberOfLines => {
-  if (player.score < 10e5) player.score += scoreSys[numberOfLines - 1];
   player.lines += numberOfLines;
   player.trt = ((player.trs / player.lines) * 100) | 0;
-  if (linesPerLevel[player.lines]) {
-    player.level = linesPerLevel[player.lines];
-  } if (speedPerLevel[player.level]) {
-    player.speed = speedPerLevel[player.level] * deltaTime;
-  }
+  if (player.score < 10e5) player.score += scoreSys[numberOfLines - 1];
+  if (linesPerLevel[player.lines]) player.level = linesPerLevel[player.lines];
+  if (speedPerLevel[player.level]) player.speed = speedPerLevel[player.level] * deltaTime;
 }
 
 const updateHightScore = () => {
-  if (player.score > player.hightScore) {
-    player.hightScore = player.score;
-  }
+  if (player.score > player.hightScore) player.hightScore = player.score;
   localStorage.setItem('hightScore', `${player.hightScore}`);
 }
 
@@ -152,12 +145,11 @@ const createBoard = () => {
   let board = [];
   for (let i = 0; i < boardSize.y; i++) {
     board.push(new Array(boardSize.x).fill(0));
-  }
-  return board;
+  } return board;
 }
 
 const collide = (player, board) => {
-  let margin = player.pos.y >= 0 ? 0 : Math.abs(player.pos.y);
+  let margin = player.pos.y >= 0 ? 0 : Math.abs(player.pos.y)
   for (let y = 0; y < player.matrix.length; ++y) {
     for (let x = 0; x < player.matrix.length; ++x) {
       if (player.matrix[y][x] !== 0 &&
@@ -166,8 +158,7 @@ const collide = (player, board) => {
         return true;
       }
     }
-  }
-  return false;
+  } return false;
 }
 
 const merge = (player, board) => {
@@ -176,8 +167,8 @@ const merge = (player, board) => {
       if (value !== 0) {
         board[y + player.pos.y][x + player.pos.x] = value;
       }
-    });
-  });
+    })
+  })
   player.pos.y = 0;
 }
 
@@ -216,9 +207,7 @@ const reset = () => {
   player.pos.y = -1;
   getNextMatrix();
   if (collide(player, board) || player.isGameOver) {
-    board.forEach((row) => {
-      row.fill(0);
-    });
+    board.forEach((row) => { row.fill(0) });
     updateHightScore()
     player.score = 0;
     player.lines = 0;
@@ -260,9 +249,7 @@ const hardDrop = () => {
 
 const move = (dir) => {
   player.pos.x += dir;
-  if (collide(player, board)) {
-    player.pos.x -= dir;
-  }
+  if (collide(player, board)) player.pos.x -= dir;
 }
 
 const rotate = (matrix) => {
@@ -288,12 +275,12 @@ const previewSkeleton = () => {
       skeleton.pos.y--;
       break;
     }
-  }
-  if (skeleton.pos.y - player.pos.y > 3) {
+  } if (skeleton.pos.y - player.pos.y > 3) {
     skeleton.matrix.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
-          drawBorder(ctx, blockSize * (x + skeleton.pos.x), blockSize * (y + skeleton.pos.y), blockSize, blockSize, value);
+          drawBorder(ctx, blockSize * (x + skeleton.pos.x),
+            blockSize * (y + skeleton.pos.y), blockSize, blockSize, value);
         }
       })
     })
@@ -346,11 +333,9 @@ document.addEventListener("keydown", (event) => {
       hardDrop();
       dropCounter = 0;
     }
-  }
-  if (event.keyCode === 80) {
+  } else if (event.keyCode === 80) {
     pause();
-  }
-  if (event.keyCode === 82) {
+  } else if (event.keyCode === 82) {
     player.isGameOver = true;
     reset();
   }
