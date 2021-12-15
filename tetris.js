@@ -17,13 +17,13 @@ previewCanvas.width = blockSize * 5;
 previewCanvas.height = blockSize * 5;
 
 const copyArray = (arr) => JSON.parse(JSON.stringify(arr));
-const getRandomIndex = () => 1;
+const getRandomIndex = () => (Math.random() * matrixes.length) | 0;
 let board;
 let deltaTime;
-let player = {
+const player = {
   score: 0,
   lines: 0,
-  level: 0,
+  level: 3,
   trs: 0,
   trt: 0,
   speed: speedPerLevel[0] * 16.666,
@@ -65,9 +65,9 @@ const getNextMatrix = () => {
   }
 }
 
-const rotate2dArray = (matrix, dir) => {
+const rotate2dArray = (matrix, n) => {
   const len = matrix.length;
-  if (dir === -1) {
+  for (let i = 0; i < n; i++) {
     for (let i = 0; i < len; i++) {
       for (let j = i; j < len; j++) {
         [matrix[j][i], matrix[i][j]] = [matrix[i][j], matrix[j][i]];
@@ -79,22 +79,6 @@ const rotate2dArray = (matrix, dir) => {
           matrix[i][len - 1 - j],
           matrix[i][j],
         ];
-      }
-    }
-  } else {
-    for (let i = 0; i < 3; i++) {
-      for (let i = 0; i < len; i++) {
-        for (let j = i; j < len; j++) {
-          [matrix[j][i], matrix[i][j]] = [matrix[i][j], matrix[j][i]];
-        }
-      }
-      for (let i = 0; i < len; i++) {
-        for (let j = 0; j < len / 2; j++) {
-          [matrix[i][j], matrix[i][len - 1 - j]] = [
-            matrix[i][len - 1 - j],
-            matrix[i][j],
-          ];
-        }
       }
     }
   }
@@ -284,14 +268,14 @@ const move = (dir) => {
 }
 
 const rotate = (matrix) => {
-  let rotatedMatrix = rotate2dArray(matrix);
+  let rotatedMatrix = rotate2dArray(matrix, 3);
   let offset = 1;
   const posX = player.pos.x;
   while (collide(player, board)) {
     player.pos.x += offset;
     offset = -(offset + (offset > 0 ? 1 : -1));
     if (offset > player.matrix.length + 1) {
-      rotatedMatrix = rotate2dArray([...matrix], -1);
+      rotatedMatrix = rotate2dArray([...matrix], 1);
       player.pos.x = posX;
     }
   }
