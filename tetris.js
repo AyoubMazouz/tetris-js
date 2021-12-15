@@ -30,7 +30,7 @@ const player = {
   hightScore: localStorage.getItem('hightScore') ? localStorage.getItem('hightScore') : 0,
   isGameOver: false,
   isPaused: false,
-  pos: { x: ((boardSize.x / 2) | 0) - 2, y: 0 },
+  pos: { x: ((boardSize.x / 2) | 0) - 2, y: -1 },
   matrix: null,
   nextMatrix: null,
 
@@ -157,11 +157,12 @@ const createBoard = () => {
 }
 
 const collide = (player, board) => {
+  let margin = player.pos.y >= 0 ? 0 : Math.abs(player.pos.y);
   for (let y = 0; y < player.matrix.length; ++y) {
     for (let x = 0; x < player.matrix.length; ++x) {
       if (player.matrix[y][x] !== 0 &&
         (player.pos.y + y >= board.length ||
-          board[y + player.pos.y][x + player.pos.x] !== 0)) {
+          board[y + player.pos.y + margin][x + player.pos.x] !== 0)) {
         return true;
       }
     }
@@ -212,7 +213,7 @@ const clearLine = () => {
 
 const reset = () => {
   player.pos.x = ((boardSize.x / 2) | 0) - ((player.matrix.length / 2) | 0);
-  player.pos.y = 0;
+  player.pos.y = -1;
   getNextMatrix();
   if (collide(player, board) || player.isGameOver) {
     board.forEach((row) => {
