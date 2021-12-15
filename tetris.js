@@ -70,15 +70,13 @@ const rotate2dArray = (matrix, n) => {
   for (let i = 0; i < n; i++) {
     for (let i = 0; i < len; i++) {
       for (let j = i; j < len; j++) {
-        [matrix[j][i], matrix[i][j]] = [matrix[i][j], matrix[j][i]];
+        [matrix[j][i], matrix[i][j]] =
+          [matrix[i][j], matrix[j][i]];
       }
-    }
-    for (let i = 0; i < len; i++) {
+    } for (let i = 0; i < len; i++) {
       for (let j = 0; j < len / 2; j++) {
-        [matrix[i][j], matrix[i][len - 1 - j]] = [
-          matrix[i][len - 1 - j],
-          matrix[i][j],
-        ];
+        [matrix[i][j], matrix[i][len - 1 - j]] =
+          [matrix[i][len - 1 - j], matrix[i][j]];
       }
     }
   }
@@ -259,7 +257,6 @@ const hardDrop = () => {
   }
 }
 
-
 const move = (dir) => {
   player.pos.x += dir;
   if (collide(player, board)) {
@@ -302,7 +299,11 @@ const previewSkeleton = () => {
   }
 }
 
-
+const pause = () => {
+  player.isPaused = !player.isPaused;
+  dropCounter = 0;
+  update();
+}
 
 const drawGame = () => {
   clear();
@@ -330,26 +331,32 @@ const update = (time = 0) => {
 }
 
 document.addEventListener("keydown", (event) => {
-  if (!player.isPaused) {
-    if (event.keyCode === 37) {
+  if (!player.isPaused) { // left-right-up-down
+    if (event.keyCode === 37 || event.keyCode === 65) {
       move(-1);
-    } else if (event.keyCode === 39) {
+    } else if (event.keyCode === 39 || event.keyCode === 68) {
       move(1);
-    } else if (event.keyCode === 40) {
+    } else if (event.keyCode === 40 || event.keyCode === 83) {
       drop();
       dropCounter = 0;
-    } else if (event.keyCode === 38) {
+    } else if (event.keyCode === 38 || event.keyCode === 87) {
       rotate(player.matrix);
     } else if (event.keyCode === 32) {
       hardDrop();
       dropCounter = 0;
     }
   }
+  if (event.keyCode === 80) {
+    pause();
+  }
+  if (event.keyCode === 82) {
+    player.isGameOver = true;
+    reset();
+  }
 });
 
 pauseBtn.addEventListener('click', () => {
-  player.isPaused = !player.isPaused;
-  update();
+  pause();
 })
 restartBtn.addEventListener('click', () => {
   player.isGameOver = true;
