@@ -1,12 +1,15 @@
 const blockSize = 30;
-const boardSize = { x: 10, y: 20 };
+// Height & Width.
+const boardSize = { x: 10, y: 20 }; 
 
 const canvasSize = {
     width: blockSize * 10,
     height: blockSize * 20
 };
 
+// Score for number of Lines Cleared at once.
 const scoreSys = [40, 100, 300, 1200];
+// Speed Correspond to Current Level.
 const speedPerLevel = {
     0: 48,
     1: 43,
@@ -24,6 +27,7 @@ const speedPerLevel = {
     19: 2,
     29: 1,
 }
+// Line Clear Score Differ in each Level.
 const linesPerLevel = {
     0: 0,
     1: 1,
@@ -57,6 +61,7 @@ const linesPerLevel = {
     290: 29,
 }
 
+// Tetrominos Colors.
 const colors = [
     ['#000'],
     ['#ee9ca7', '#ee9ca7'],
@@ -68,6 +73,7 @@ const colors = [
     ['#dd5e89', '#f7bb97']
 ];
 
+// Tetrominos.
 const matrixes = [
     [
         [0, 1, 0],
