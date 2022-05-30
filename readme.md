@@ -10,7 +10,7 @@
 * Preview of the next Tetrominos.
 * Pause or Reset the game.
 
-#### See Live Demo: [Teris]()
+#### See Live Demo: [Teris](https://tetris3.netlify.app)
 
 ### Screenshots:
 
