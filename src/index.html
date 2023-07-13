@@ -1,0 +1,64 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tetris</title>
+    <script defer src="tetris.config.js"></script>
+    <script defer src="tetris.js"></script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body
+    class="flex bg-[url(bg.jpg)] bg-cover justify-center w-full items-center p-2 gap-6 text-xl font-semibold"
+  >
+    <div class="rounded-lg overflow-hidden shadow-xl">
+      <canvas id="tetris"></canvas>
+    </div>
+
+    <div class="flex flex-col gap-y-3">
+      <h3>
+        Level:
+        <span id="level" class="text-indigo-600">0</span>
+      </h3>
+      <h3>
+        Score:
+        <span id="score" class="text-indigo-600">0</span>
+      </h3>
+      <h3>
+        Lines:
+        <span id="lines" class="text-indigo-600">0</span>
+      </h3>
+      <h3>
+        TRT:
+        <span id="trt" class="text-indigo-600">0</span>
+      </h3>
+      <div class="rounded-lg overflow-hidden shadow-xl w-[150px]">
+        <canvas id="preview"></canvas>
+      </div>
+      <h3>
+        Hight Score:
+        <span id="hight-score" class="text-indigo-600">0</span>
+      </h3>
+      <div class="">
+        <button
+          class="bg-indigo-600 text-white border border-indigo-600 hover:bg-indigo-600/50 hover:text-indigo-950 transition-all duration-200 rounded shadow-lg py-1 px-3 text-lg"
+          id="pause"
+        >
+          Pause
+        </button>
+        <button
+          class="bg-indigo-600 text-white border border-indigo-600 hover:bg-indigo-600/50 hover:text-indigo-950 transition-all duration-200 rounded shadow-lg py-1 px-3 text-lg"
+          id="reset"
+        >
+          Restart
+        </button>
+      </div>
+      <h4 class="max-w-[15ch] text-base">
+        Use <span class="text-indigo-600">"AWSD"</span> or
+        <span class="text-indigo-600">"arrow keys"</span> and
+        <span class="text-indigo-600"> "SPACE key" </span>
+      </h4>
+    </div>
+  </body>
+</html>
